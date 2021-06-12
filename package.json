@@ -2,7 +2,7 @@
   "name": "guess-name",
   "version": "0.1.0",
   "private": true,
-  "homepage": "http://dclay0324.github.io/Guess_Name",
+  "homepage": "https://dclay0324.github.io/Guess_Name",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
