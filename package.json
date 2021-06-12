@@ -2,10 +2,13 @@
   "name": "guess-name",
   "version": "0.1.0",
   "private": true,
+  "homepage": "http://dclay0324.github.io/Guess_Name",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "predeplo": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "dependencies": {
     "firebase": "^8.6.7",
