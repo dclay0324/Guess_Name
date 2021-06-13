@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import { Table, Button, Label } from 'semantic-ui-react';
 import Layout from '../components/Layout';
 import Row from '../components/Row';
-import { Link } from '../routes';
+import { Link, Router } from '../routes';
 import firebase from 'firebase';
 import config from '../components/config';
 
-class List extends Component {
+class Play extends Component {
   static async getInitialProps(props) {
     const { player } =  props.query;
     var playerList = [];
@@ -31,6 +31,29 @@ class List extends Component {
     return { playerList, player };
   }
 
+  constructor (props) {
+    super(props)
+    this.state = {
+      loading_ans: false,
+      loading_quit: false
+    }
+  }
+
+  handleAns = async () => {
+    this.setState({ loading_ans: true });
+    await firebase.database().ref("namePool/" + this.props.player).once('value').then(function (snapshot) {
+      alert("Your answer is " + snapshot.val().guessName);
+    });
+    this.setState({ loading_ans: false });
+  }
+
+  handleQuit = async () => {
+    this.setState({ loading_quit: true });
+    await firebase.database().ref("namePool/" + this.props.player).remove();
+    this.setState({ loading_quit: false });
+    Router.pushRoute(`/quit`);
+  }
+
   renderRows() {
     return this.props.playerList.map((player, index) => {
       return (
@@ -47,10 +70,8 @@ class List extends Component {
 
     return (
       <Layout>
-        <h1>All guess names</h1>
-        <Link route={`/`}>
-          <a>back</a>
-        </Link>
+        <h1>Guess Names</h1>
+        <br />
         <Table>
           <Header>
             <Row>
@@ -62,9 +83,38 @@ class List extends Component {
             {this.renderRows()}
           </Body>
         </Table>
+        <a>
+          <Button
+            loading={this.state.loading_ans}
+            content='Answer'
+            icon='eye'
+            primary={true}
+            onClick={this.handleAns}
+          />
+        </a>
+        <Link route={`/setup/${this.props.player}`}>
+          <a>
+            <Button
+              content='Next Game'
+              icon='redo'
+              primary={true}
+            />
+          </a>
+        </Link>
+        <Link route={`/quit`}>
+          <a>
+            <Button
+              loading={this.state.loading_quit}
+              content='Quit Game'
+              icon='sign-out'
+              primary={true}
+              onClick={this.handleQuit}
+            />
+          </a>
+        </Link>
       </Layout>
     );
   }
 }
 
-export default List;
+export default Play;

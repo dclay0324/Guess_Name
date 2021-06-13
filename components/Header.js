@@ -11,13 +11,13 @@ export default () => {
         </Link>
       </Menu.Menu>
 
-      <Link route="/login">
+      <Link route="/">
         <a className="item">Login</a>
       </Link>
 
       <Menu.Menu position="right">
-        <Link route="/list">
-          <a className="item">Check All</a>
+        <Link route="/">
+          <a className="item">Home</a>
         </Link>
       </Menu.Menu>
     </Menu>

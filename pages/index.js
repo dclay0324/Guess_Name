@@ -5,15 +5,15 @@ import Layout from '../components/Layout';
 import firebase from 'firebase';
 import config from '../components/config';
 
-class Index extends Component {
+class Login extends Component {
 
   constructor (props) {
     super(props)
     this.state = {
       name: '',
-      guessName: '',
       errorMessage: '',
-      loading: false
+      loading: false,
+      disabled: true
     }
   }
 
@@ -26,29 +26,31 @@ class Index extends Component {
     try {
       if (!firebase.apps.length) 
         firebase.initializeApp(config);
+      
+      var path = this.state.name;
+      await firebase.database().ref(`namePool/${path}`).set({
+        playerName: this.state.name,
+        guessName: this.state.name
+      })
+      .then(function () {
+        alert("登入成功")
+      }).catch(function () {
+        alert("登入失敗");
+      });
 
-        var path = this.state.name;
-        await firebase.database().ref(`namePool/${path}`).set({
-          playerName: this.state.name,
-          guessName: this.state.guessName
-        })
-        .then(function () {
-          alert("建立成功")
-        }).catch(function () {
-          alert("建立失敗");
-        });
-
-      Router.pushRoute(`/login`);
+      // await Router.pushRoute(`/setup/${ this.state.name.toString() }`);
     } catch (err) {
       this.setState({ errorMessage: err.message });
     }
-    this.setState({ loading: false });
+    this.setState({ 
+      loading: false,
+      disabled: false });
   };
 
   render() {
     return (
       <Layout>
-        <h1>Set Name</h1>
+        <h1>Login</h1>
         <br />
         <Form onSubmit={this.onSubmit} error={!!this.state.errorMessage}>
           <Form.Field>
@@ -60,23 +62,25 @@ class Index extends Component {
                 this.setState({ name: event.target.value })}
             />
           </Form.Field>
-          <Form.Field>
-            <h3>Guess Name</h3>
-            <Input
-              placeholder='the guess name'
-              value={this.state.guessName}
-              onChange={event =>
-                this.setState({ guessName: event.target.value })}
-            />
-          </Form.Field>
+
           <a>
             <Button
               loading={this.state.loading}
-              content='Set'
-              icon='upload'
+              content='Login'
+              icon='sign-in'
               primary={true}
             />
           </a>
+          <Link route={`/setup/${this.state.name}`}>
+            <a>
+              <Button
+                disabled={this.state.disabled}
+                content='Set Name'
+                icon='edit'
+                primary={true}
+              />
+            </a>
+          </Link>
           <Message error header="Oops!" content={this.state.errorMessage} />
         </Form>
         <br /><br />
@@ -85,4 +89,4 @@ class Index extends Component {
   }
 }
 
-export default Index;
+export default Login;
