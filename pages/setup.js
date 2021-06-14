@@ -8,7 +8,8 @@ import config from '../components/config';
 class Index extends Component {
   static async getInitialProps(props) {
     const { player } = props.query;
-    let playerList = [];
+    let playerNameList = [];
+    let playerIDList = [];
     let i = 0;
 
     if (!firebase.apps.length) 
@@ -18,23 +19,25 @@ class Index extends Component {
       for (let item in snapshot.val()) {
           // console.log(item);
           await firebase.database().ref("namePool/" + item).once('value').then(function (snapshot) {
-              if (snapshot.val().playerName != player) {
-                playerList[i] = { key: i, text: snapshot.val().playerName, value: i }
+              if (snapshot.val().playerID != player) {
+                playerNameList[i] = { key: i, text: snapshot.val().playerName, value: i };
+                playerIDList[i] = { key: i, text: snapshot.val().playerID, value: i }
                 i++;
               }
           });
       }
     });
 
-    console.log(playerList);
+    // console.log(playerNameList);
     
-    return { player, playerList };
+    return { player, playerNameList, playerIDList };
   }
 
   constructor (props) {
     super(props)
     this.state = {
       name: '',
+      id: '',
       guessName: '',
       errorMessage: '',
       loading: false,
@@ -45,7 +48,10 @@ class Index extends Component {
   }
 
   handleChange = async (e, { value }) => {
-    this.setState({ name: this.props.playerList[value].text });
+    this.setState({ 
+      name: this.props.playerNameList[value].text, 
+      id: this.props.playerIDList[value].text
+    });
     // console.log(this.state.name);
   }
 
@@ -59,10 +65,9 @@ class Index extends Component {
       if (!firebase.apps.length) 
         firebase.initializeApp(config);
 
-      var path = this.state.name;
-      await firebase.database().ref(`namePool/${path}`).set({
-        playerName: this.state.name,
-        guessName: this.state.guessName
+      var path = this.state.id;
+      await firebase.database().ref(`namePool/${path}`).update({ 
+        guessName: this.state.guessName 
       })
       .then(function () {
         alert("建立成功")
@@ -90,7 +95,7 @@ class Index extends Component {
             <h3>Player Name</h3>
             <Dropdown
               placeholder='the player name'
-              options={this.props.playerList}
+              options={this.props.playerNameList}
               selection={true}
               loading={this.state.loading_list}
               onChange={this.handleChange}
